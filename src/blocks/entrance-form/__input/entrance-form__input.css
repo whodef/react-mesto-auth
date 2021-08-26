@@ -1,0 +1,17 @@
+.entrance-form__input {
+  padding: 0 13px 0 0;
+  background-color: transparent;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: #CCC;
+  border: none;
+  border-bottom: 2px solid #CCC;
+  margin-bottom: 30px;
+  width: 100%;
+  height: 27px;
+}
+
+.entrance-form__input:focus  {
+  outline: none;
+}

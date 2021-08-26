@@ -1,0 +1,10 @@
+.entrance-form__link {
+    list-style: none;
+    text-decoration: none;
+    color: #fff;
+    transition: opacity .15s ease-in;
+}
+
+.entrance-form__link:hover {
+    opacity: .6;
+}

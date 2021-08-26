@@ -1,0 +1,18 @@
+.entrance-form__submit-button{
+  margin: 186px 0 15px;
+  padding: 0;
+  width: 100%;
+  min-height: 50px;
+  color: #000;
+  background-color: #fff;
+  border: none;
+  display: block;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+  transition: opacity .15s ease-in;
+}
+
+.entrance-form__submit-button:hover {
+  opacity: .6;
+}

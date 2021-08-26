@@ -1,7 +1,9 @@
 import '../index.css';
 import {useState, useEffect} from 'react';
-import {CurrentUserContext} from '../contexts/CurrentUserContext';
+import {Route, Switch, useHistory} from "react-router-dom";
+import {CurrentUserContext, defaultUser} from '../contexts/CurrentUserContext';
 import api from '../utils/api';
+import * as auth from "../utils/auth.js";
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -10,10 +12,20 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ConfirmPopup from './ConfirmPopup';
+import Login from './Login';
+import Register from './Register';
+import InfoTooltip from './InfoTooltip';
+import ProtectedRoute from './ProtectedRoute';
 
 const App = () => {
     // Для получения данных пользователя, данных карточек
-    const [currentUser, setCurrentUser] = useState({});
+    const [currentUser, setCurrentUser] = useState(defaultUser);
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [isInfoToolTipOpen, setIsInfoToolTipOpen] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [userEmail, setUserEmail] = useState('');
+    const history = useHistory();
+
     const [cards, setCards] = useState([]);
 
     // Для выбора карточки
@@ -25,6 +37,25 @@ const App = () => {
     const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
     const [isImagePopupOpen, setImagePopupOpen] = useState(false);
     const [isConfirm, setConfirm] = useState(false);
+
+    const tokenCheck = () => { // TODO: ПЕРЕДЕЛАТЬ
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            auth.getContent(token)
+                .then((res) => {
+                    if (res) {
+                        setUserEmail(res.data['email']);
+                        setLoggedIn(true);
+                        history.push('/');
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+    };
+
+    useEffect(() => {
+        tokenCheck();
+    }, []);
 
     // Асинхронное получение данных пользователя
     useEffect(() => {
@@ -56,6 +87,10 @@ const App = () => {
     const handleConfirm = (card) => {
         setSelectedCard(card);
         setConfirm(true);
+    }
+
+    const handleInfoTooltipPopupOpen = () => {
+        setIsInfoToolTipOpen(true);
     }
 
     // Обработчики для работы с API
@@ -105,6 +140,38 @@ const App = () => {
             .catch(err => console.error(err));
     }
 
+    // Регистрация пользователя
+    const handleRegistration = (data) => {
+        auth.register(data)
+            .then(() => {
+                    setIsRegistered(true);
+                    handleInfoTooltipPopupOpen();
+                    history.push('/sign-in');
+                },
+                (err) => {
+                    console.error(err);
+                    setIsRegistered(false);
+                    handleInfoTooltipPopupOpen();
+                })
+            .catch(err => console.error(err));
+    }
+
+    const handleLogin = (password, email) => {
+        auth.authorize(password, email)
+            .then((data) => {
+                setLoggedIn(true);
+                localStorage.setItem('jwt', data.token);
+                setUserEmail(email);
+                history.push('/');
+            })
+            .catch(err => console.error(err));
+    }
+
+    const handleSignOut = () => {
+        localStorage.removeItem('jwt');
+        history.push('/login');
+    }
+
     // Закрытие всплывающих окон
     const closeAllPopups = () => {
         setIsEditProfilePopupOpen(false);
@@ -131,20 +198,51 @@ const App = () => {
 
     }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen, isConfirm]);
 
+    useEffect(() => {
+        if (loggedIn) {
+            api.getUserData()
+                .then((userData) => {
+                    setCurrentUser(userData);
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    }, [loggedIn]);
+
     return (
         <CurrentUserContext.Provider value={currentUser}>
             <div className="page">
-                <Header/>
-                <Main
-                    cards={cards}
-                    onEditAvatar={handleEditAvatarClick}
-                    onEditProfile={handleEditProfileClick}
-                    onAddPlace={handleAddPlaceClick}
-                    onCardClick={handleCardClick}
-                    onLikeClick={handleCardLike}
-                    onDeleteClick={handleConfirm}
+                <Header
+                    userEmail={userEmail}
+                    onSingOut={handleSignOut}
                 />
-                <Footer/>
+                <Switch>
+                    <Route path="/sign-up">
+                        <Register onRegistration={handleRegistration}/>
+                    </Route>
+                    <Route path="/sign-in">
+                        <Login handleLogin={handleLogin}/>
+                    </Route>
+                    <ProtectedRoute
+                        path="/"
+                        loggedIn={loggedIn}
+                        component={Main}
+                        cards={cards}
+                        onEditAvatar={handleEditAvatarClick}
+                        onEditProfile={handleEditProfileClick}
+                        onAddPlace={handleAddPlaceClick}
+                        onCardClick={handleCardClick}
+                        onLikeClick={handleCardLike}
+                        onDeleteClick={handleConfirm}
+                    />
+                </Switch>
+                {loggedIn && <Footer/>}
+                <InfoTooltip
+                    isRegistered={isRegistered}
+                    isOpen={isInfoToolTipOpen}
+                    onClose={closeAllPopups}
+                />
 
                 {/* Всплывающее окно для изменений в профиле */}
                 <EditProfilePopup

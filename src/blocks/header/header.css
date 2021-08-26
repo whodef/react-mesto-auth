@@ -2,6 +2,14 @@
     margin: 0 auto;
     padding: 44px 0 0;
     border-bottom: 1px solid rgba(84,84,84, .7);
+    font-family: 'Inter', Arial, sans-serif;
+    box-sizing: border-box;
+    min-height: 74px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    color: rgb(255, 255, 255);
 }
 
 @media screen and (max-width: 660px) {
