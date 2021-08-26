@@ -146,7 +146,7 @@ const App = () => {
             .then(() => {
                     setIsRegistered(true);
                     handleInfoTooltipPopupOpen();
-                    history.push('/sign-in');
+                    history.push('/signin');
                 },
                 (err) => {
                     console.error(err);
