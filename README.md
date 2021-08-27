@@ -15,7 +15,7 @@
     * Responsive Layout
     * BEM (Nested)
     
-* JavaScript (ES6) ✨
+* JavaScript (> ES6) ✨
 
 * React.js ✨
   * useEffect
@@ -24,7 +24,7 @@
 
 ----
 
-### Проверить, что [МЕСТО](https://whodef.github.io/mesto/) на месте
-[<img src="https://64.media.tumblr.com/1d6abee87aa71fc219c2312ba0c7c7c5/tumblr_p69s21P7KM1w3y4ilo1_500.gifv" width="155" height="155">](https://whodef.github.io/mesto/)
+### Проверить, что [МЕСТО](https://react-mesto-auth-theta.vercel.app/) на месте.
+Деплой на vercel.
 
 ----
