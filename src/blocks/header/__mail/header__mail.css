@@ -1,5 +1,6 @@
 .header__mail {
-    margin: 0 24px 10px 0;
+    margin: 0;
+    padding: 0 24px 20px 0;
     font-weight: 500;
     font-style: normal;
     font-size: 18px;
