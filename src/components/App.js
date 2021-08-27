@@ -18,7 +18,7 @@ import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
 
 const App = () => {
-    // Для получения данных пользователя, данных карточек
+    // Для получения данных (пользователя, карточек...)
     const [currentUser, setCurrentUser] = useState(defaultUser);
     const [isRegistered, setIsRegistered] = useState(false);
     const [isInfoToolTipOpen, setIsInfoToolTipOpen] = useState(false);
@@ -26,9 +26,8 @@ const App = () => {
     const [userEmail, setUserEmail] = useState('');
     const history = useHistory();
 
+    // Для работы с карточками
     const [cards, setCards] = useState([]);
-
-    // Для выбора карточки
     const [selectedCard, setSelectedCard] = useState({});
 
     // Для открытия-закрытия всплывающих окон
@@ -37,21 +36,6 @@ const App = () => {
     const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
     const [isImagePopupOpen, setImagePopupOpen] = useState(false);
     const [isConfirm, setConfirm] = useState(false);
-
-    const tokenCheck = () => { // TODO: ПЕРЕДЕЛАТЬ
-        const token = localStorage.getItem('jwt');
-        if (token) {
-            auth.getContent(token)
-                .then((res) => {
-                    if (res) {
-                        setUserEmail(res.data['email']);
-                        setLoggedIn(true);
-                        history.push('/');
-                    }
-                })
-                .catch((err) => console.error(err));
-        }
-    };
 
     useEffect(() => {
         tokenCheck();
@@ -67,30 +51,66 @@ const App = () => {
             .catch(err => console.error(err));
     }, []);
 
-    const handleEditAvatarClick = () => {
-        setIsEditAvatarPopupOpen(true);
+    // Проверка токена для эндпойнта /users/me
+    const tokenCheck = () => {
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            auth.getContent(token)
+                .then((res) => {
+                    if (res) {
+                        setUserEmail(res.data['email']);
+                        setLoggedIn(true);
+                        history.push('/');
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+    };
+
+    useEffect(() => {
+        if (loggedIn) {
+            api.getUserData()
+                .then((userData) => {
+                    setCurrentUser(userData);
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    }, [loggedIn]);
+
+    // Регистрация пользователя
+    const handleRegistration = (data) => {
+        auth.register(data)
+            .then(() => {
+                    setIsRegistered(true);
+                    handleInfoTooltipPopupOpen();
+                    history.push('/signin');
+                },
+                (err) => {
+                    console.error(err);
+                    setIsRegistered(false);
+                    handleInfoTooltipPopupOpen();
+                })
+            .catch(err => console.error(err));
     }
 
-    const handleEditProfileClick = () => {
-        setIsEditProfilePopupOpen(true);
+    // Авторизация пользователя
+    const handleLogin = (email, password) => {
+        auth.authorize(email, password)
+            .then((data) => {
+                setLoggedIn(true);
+                localStorage.setItem('jwt', data.token);
+                setUserEmail(email);
+                history.push('/');
+            })
+            .catch(err => console.error(err));
     }
 
-    const handleAddPlaceClick = () => {
-        setIsAddPlacePopupOpen(true);
-    }
-
-    const handleCardClick = (card) => {
-        setSelectedCard(card);
-        setImagePopupOpen(true);
-    }
-
-    const handleConfirm = (card) => {
-        setSelectedCard(card);
-        setConfirm(true);
-    }
-
-    const handleInfoTooltipPopupOpen = () => {
-        setIsInfoToolTipOpen(true);
+    // Sign out
+    const handleSignOut = () => {
+        localStorage.removeItem('jwt');
+        history.push('/login');
     }
 
     // Обработчики для работы с API
@@ -140,36 +160,30 @@ const App = () => {
             .catch(err => console.error(err));
     }
 
-    // Регистрация пользователя
-    const handleRegistration = (data) => {
-        auth.register(data)
-            .then(() => {
-                    setIsRegistered(true);
-                    handleInfoTooltipPopupOpen();
-                    history.push('/signin');
-                },
-                (err) => {
-                    console.error(err);
-                    setIsRegistered(false);
-                    handleInfoTooltipPopupOpen();
-                })
-            .catch(err => console.error(err));
+    const handleEditAvatarClick = () => {
+        setIsEditAvatarPopupOpen(true);
     }
 
-    const handleLogin = (password, email) => {
-        auth.authorize(password, email)
-            .then((data) => {
-                setLoggedIn(true);
-                localStorage.setItem('jwt', data.token);
-                setUserEmail(email);
-                history.push('/');
-            })
-            .catch(err => console.error(err));
+    const handleEditProfileClick = () => {
+        setIsEditProfilePopupOpen(true);
     }
 
-    const handleSignOut = () => {
-        localStorage.removeItem('jwt');
-        history.push('/login');
+    const handleAddPlaceClick = () => {
+        setIsAddPlacePopupOpen(true);
+    }
+
+    const handleCardClick = (card) => {
+        setSelectedCard(card);
+        setImagePopupOpen(true);
+    }
+
+    const handleConfirm = (card) => {
+        setSelectedCard(card);
+        setConfirm(true);
+    }
+
+    const handleInfoTooltipPopupOpen = () => {
+        setIsInfoToolTipOpen(true);
     }
 
     // Закрытие всплывающих окон
@@ -197,18 +211,6 @@ const App = () => {
         return () => window.removeEventListener('keyup', handleEsc);
 
     }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen, isConfirm]);
-
-    useEffect(() => {
-        if (loggedIn) {
-            api.getUserData()
-                .then((userData) => {
-                    setCurrentUser(userData);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        }
-    }, [loggedIn]);
 
     return (
         <CurrentUserContext.Provider value={currentUser}>

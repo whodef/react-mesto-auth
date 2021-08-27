@@ -5,7 +5,7 @@ export const handleResponse = (res) => {
     return res.json();
   }
   return Promise.reject(`Ошибка: ${res.status}`);
-}
+};
 
 export const register = (data) => {
   return fetch(`${BASE_URL}/signup`, {
@@ -18,10 +18,11 @@ export const register = (data) => {
       password: data.password,
       email: data.email,
     })
-  }).then((res) => handleResponse(res))
+  })
+      .then((res) => handleResponse(res))
 };
 
-export const authorize = (password, email) => {
+export const authorize = (email, password) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
@@ -32,7 +33,8 @@ export const authorize = (password, email) => {
       password: password,
       email: email,
     })
-  }).then((res) => handleResponse(res))
+  })
+      .then((res) => handleResponse(res))
 };
 
 export const getContent = (token) => {
@@ -41,7 +43,8 @@ export const getContent = (token) => {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
     }
-  }).then((res) => handleResponse(res))
+  })
+      .then((res) => handleResponse(res))
 };
