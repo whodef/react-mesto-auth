@@ -29,9 +29,7 @@ const Register = (props) => {
                        onChange={handleEmailChange} required/>
                 <input className="entrance-form__input" placeholder="Пароль" name="password" type="password"
                        value={password} onChange={handlePasswordChange} required/>
-                <button className="entrance-form__submit-button" type="submit"
-                        onSubmit={handleSubmit}>Зарегистрироваться
-                </button>
+                <button className="entrance-form__submit-button" type="submit">Зарегистрироваться</button>
                 <p className="entrance-form__notification">Уже зарегистрированы?
                     <Link to="/sign-in" className="entrance-form__link"> Войти</Link>
                 </p>

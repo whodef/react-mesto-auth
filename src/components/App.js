@@ -37,10 +37,6 @@ const App = () => {
     const [isImagePopupOpen, setImagePopupOpen] = useState(false);
     const [isConfirm, setConfirm] = useState(false);
 
-    useEffect(() => {
-        tokenCheck();
-    }, []);
-
     // Асинхронное получение данных пользователя
     useEffect(() => {
         Promise.all([api.getUserData(), api.getCards()])
@@ -68,6 +64,10 @@ const App = () => {
     };
 
     useEffect(() => {
+        tokenCheck();
+    }, []);
+
+    useEffect(() => {
         if (loggedIn) {
             api.getUserData()
                 .then((userData) => {
@@ -79,23 +79,23 @@ const App = () => {
         }
     }, [loggedIn]);
 
-    // Регистрация пользователя
+    // Авторизация пользователя
     const handleRegistration = (data) => {
         auth.register(data)
             .then(() => {
-                    setIsRegistered(true);
-                    handleInfoTooltipPopupOpen();
-                    history.push('/signin');
-                },
-                (err) => {
-                    console.error(err);
-                    setIsRegistered(false);
-                    handleInfoTooltipPopupOpen();
-                })
-            .catch(err => console.error(err));
+                setIsRegistered(true);
+                handleInfoTooltipPopupOpen();
+                history.push('/signin');
+            })
+            .catch((err) => {
+                console.error(err);
+                setIsRegistered(false);
+            })
+            .finally(() => {
+                handleInfoTooltipPopupOpen();
+            });
     }
 
-    // Авторизация пользователя
     const handleLogin = (email, password) => {
         auth.authorize(email, password)
             .then((data) => {
@@ -194,6 +194,7 @@ const App = () => {
         setImagePopupOpen(false);
         setConfirm(false);
         setSelectedCard({});
+        setIsInfoToolTipOpen(false);
     }
 
     // Реализация открытия-закрытия по 'Esc'
@@ -204,13 +205,13 @@ const App = () => {
             }
         };
 
-        if (isEditProfilePopupOpen || isEditAvatarPopupOpen || isAddPlacePopupOpen || isImagePopupOpen || isConfirm) {
+        if (isEditProfilePopupOpen || isEditAvatarPopupOpen || isAddPlacePopupOpen || isImagePopupOpen || isConfirm || isInfoToolTipOpen) {
             window.addEventListener('keyup', handleEsc);
         }
 
         return () => window.removeEventListener('keyup', handleEsc);
 
-    }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen, isConfirm]);
+    }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen, isConfirm, isInfoToolTipOpen]);
 
     return (
         <CurrentUserContext.Provider value={currentUser}>

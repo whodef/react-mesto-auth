@@ -3,7 +3,7 @@ import failureSign from "../images/failure-sign.png";
 
 const InfoTooltip = (props) => {
     return (
-        <div className={`overlay  ${props.isOpen && 'overlay_opened'}`}>
+        <div className={`overlay ${props.isOpen ? 'overlay_open' : ''}`}>
             <div className="status overlay__container">
                 <button className="overlay__close-button" type="button" onClick={props.onClose}/>
                 <img className="status__image" src={props.isRegistered ? successSign : failureSign} alt="Success"/>
